@@ -24,7 +24,7 @@ export const SuggestionRing = React.memo(({
   const thisAgent = agents.find(a => a.id === agentId);
   const agentAbsolutePos = thisAgent ? thisAgent.position : { x: 0, y: 0 };
   
-  // Calculate which suggestions are valid (not blocked)
+  // Calculate which suggestions are valid (not blocked by nodes or connections)
   const suggestions = useMemo(() => {
     if (!isVisible) return [];
     
@@ -48,16 +48,17 @@ export const SuggestionRing = React.memo(({
         ...humanOperators.map(h => h.position)
       ].filter(p => !(p.x === agentAbsolutePos.x && p.y === agentAbsolutePos.y)); // Exclude self
       
-      const isBlockedByNode = isNearExistingNode(absolutePos, allAbsolutePositions, 90);
+      const isBlockedByNode = isNearExistingNode(absolutePos, allAbsolutePositions, 100);
       
       // Check if blocked by a connection path (use absolute positions)
+      // Using tighter threshold to avoid overlapping connectors
       const isBlockedByPath = isNearConnectionPath(
         absolutePos, 
         connections, 
         agents, 
         humanOperators, 
         agentId, 
-        45 // threshold - tighter to allow more suggestions
+        55  // Threshold for path collision
       );
       
       return {
@@ -100,7 +101,7 @@ export const SuggestionRing = React.memo(({
           isHovered={hoveredIndex === suggestion.index} 
           onMouseEnter={() => handleSuggestionEnter(suggestion.index)} 
           onMouseLeave={handleSuggestionLeave}
-          animationDelay={i * 30}
+          animationDelay={i * 25}
         />
       ))}
     </g>

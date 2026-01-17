@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { AGENT_COLORS } from '../constants';
 import { useSpringPosition } from '../hooks/useSpringPosition';
 import { useSpringValue } from '../hooks/useSpringValue';
@@ -78,11 +78,13 @@ export const AgentNode = React.memo(({
         </filter>
       </defs>
 
+      {/* Outer ring for suggestions trigger */}
       <circle
         cx={0}
         cy={0}
         r={200}
         fill="transparent"
+        style={{ pointerEvents: 'all' }}
         onMouseEnter={() => onOuterRingEnter(id)}
         onMouseLeave={() => onOuterRingLeave(id)}
       />
@@ -175,14 +177,20 @@ export const AgentNode = React.memo(({
         {percentage}%
       </text>
       
-      {/* Agent circle - always draggable */}
+      {/* Agent center circle for drag/hover - only active when buttons not shown */}
       <circle
         cx={0}
         cy={0}
         r={outerRadius}
         fill="transparent"
-        style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
-        onMouseDown={(e) => onMouseDown(e, id)}
+        style={{ 
+          cursor: isDragging ? 'grabbing' : 'grab',
+          pointerEvents: showActionButtons ? 'none' : 'all'
+        }}
+        onMouseDown={(e) => {
+          e.stopPropagation();
+          onMouseDown(e, id);
+        }}
         onMouseEnter={() => { setLocalHover(true); onAgentEnter(id); }}
         onMouseLeave={() => { setLocalHover(false); onAgentLeave(id); }}
       />
